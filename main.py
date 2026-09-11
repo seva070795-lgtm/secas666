@@ -32,7 +32,7 @@ async def chat_with_gemini(message: types.Message):
     try:
         # Отправляем текст пользователя в актуальную модель gemini-2.5-flash
         response = ai_client.models.generate_content(
-            model='model='gemini-1.5-flash',
+            model='model='gemini-2.0-flash',
             contents=message.text,
         )
         # Отправляем ответ ИИ обратно пользователю в Telegram
