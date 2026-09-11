@@ -31,7 +31,7 @@ async def chat_with_gemini(message: types.Message):
     try:
         # Используем актуальную и стабильную модель gemini-2.0-flash
         response = ai_client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-2.5-flash',
             contents=message.text,
         )
         await message.answer(response.text)
