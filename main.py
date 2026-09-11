@@ -3,7 +3,7 @@ import logging
 import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
-from google import genai
+import google.generativeai as genai
 from aiohttp import web
 
 # Включаем логирование
@@ -12,12 +12,14 @@ logging.basicConfig(level=logging.INFO)
 # Безопасно получаем ключи из настроек Render
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-PORT = int(os.getenv("PORT", 8000))  # Поддержка порта для Render Web Service
+PORT = int(os.getenv("PORT", 8000))
 
-# Инициализируем бота и ИИ клиента
+# Настраиваем классическое API Gemini
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Инициализируем бота Telegram
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Ответ на команду /start
 @dp.message(CommandStart())
@@ -29,11 +31,10 @@ async def command_start_handler(message: types.Message):
 async def chat_with_gemini(message: types.Message):
     await bot.send_chat_action(chat_id=message.chat.id, action="typing")
     try:
-        # Используем актуальную и стабильную модель gemini-2.5-flash, совместимую с google-genai
-        response = ai_client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=message.text,
-        )
+        # Используем самую стабильную бесплатную модель gemini-1.5-flash через классический коннектор
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = await asyncio.to_thread(model.generate_content, message.text)
+        
         await message.answer(response.text)
     except Exception as e:
         logging.error(f"Ошибка Gemini: {e}")
@@ -52,10 +53,9 @@ async def start_webhook():
     await site.start()
 
 async def main():
-    # Запускаем веб-сервер для Render в фоновом режиме
     await start_webhook()
-    # Запускаем опрос Telegram
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
