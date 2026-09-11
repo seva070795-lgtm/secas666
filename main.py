@@ -22,16 +22,16 @@ ai_client = genai.Client(api_key=GEMINI_API_KEY)
 # Ответ на команду /start
 @dp.message(CommandStart())
 async def command_start_handler(message: types.Message):
-    await message.answer(f"Привет, {message.from_user.full_name}! Я твой ИИ-помощник Gemini 2.0. Задай мне любой вопрос!")
+    await message.answer(f"Привет, {message.from_user.full_name}! Я твой ИИ-помощник Gemini. Задай мне любой вопрос!")
 
 # Обработка всех текстовых сообщений
 @dp.message()
 async def chat_with_gemini(message: types.Message):
     await bot.send_chat_action(chat_id=message.chat.id, action="typing")
     try:
-        # Используем актуальную и стабильную модель gemini-2.0-flash
+        # Используем актуальную и стабильную модель gemini-2.5-flash, совместимую с google-genai
         response = ai_client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.5-flash',
             contents=message.text,
         )
         await message.answer(response.text)
@@ -59,4 +59,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
