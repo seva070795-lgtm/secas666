@@ -34,7 +34,7 @@ async def chat_with_gemini(message: types.Message):
     try:
         response = await asyncio.to_thread(
             ai_client.models.generate_content,
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=message.text,
         )
         await message.answer(response.text)
